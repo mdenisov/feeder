@@ -2,4 +2,4 @@
 
 # Pet Feeder
 
-WiFi remote based on ESP8266.
+Smart feeder for pets. Works according to schedule. Supports Wifi and MQTT. WiFi remote based on ESP8266.
