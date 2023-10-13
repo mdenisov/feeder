@@ -307,14 +307,12 @@ void initStepper()
 
   DEBUGLN("Init stepper");
 
-  // stepper.setRunMode(FOLLOW_POS);
   // установка макс. скорости в шагах/сек
   stepper.setMaxSpeed(2300);
   // установка ускорения в шагах/сек/сек
   stepper.setAcceleration(3500);
   // отключать мотор при достижении цели
   stepper.autoPower(true);
-  // stepper.reverse(true);
   stepper.reset();
   stepper.disable();
 }
