@@ -581,9 +581,14 @@ void loop()
   }
 
   // Подключаемся к MQTT
+  static uint32_t mqttConnectingTmr = millis();
   if (WiFi.isConnected() && !mqttClient.connected())
   {
-    startMQTT();
+    if (millis() - mqttConnectingTmr > 10 * 1000)
+    {
+      mqttConnectingTmr = millis();
+      startMQTT();
+    }
   }
 
   // Если долго нет подключения, запускаем AP
