@@ -4,4 +4,9 @@
 .vscode/launch.json
 .vscode/ipch
 
+# system
+.DS_Store
+.vscode/
+
+# project
 src/env.cpp
