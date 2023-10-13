@@ -21,8 +21,8 @@
 
 #define MQTT_SERVER "m5.wqtt.ru" // Сервер MQTT
 #define MQTT_PORT 7678           // Порт MQTT
-#define MQTT_LOGIN "login"    // Логин MQTT
-#define MQTT_PASS "pass"     // Пароль MQTT
+#define MQTT_LOGIN "login"       // Логин MQTT
+#define MQTT_PASS "pass"         // Пароль MQTT
 #define MQTT_MSG_BUFFER_SIZE 100
 // MQTT топики
 #define MQTT_TOPIC_STATUS "status"
