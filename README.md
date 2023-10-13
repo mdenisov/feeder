@@ -31,7 +31,7 @@ Step 5
 Slice
 ![slice](docs/slice.png)
 Final
-![final](docs/slice.png)
+![final](docs/final.png)
 
 ## PCB
 
