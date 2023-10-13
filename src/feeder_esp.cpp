@@ -369,60 +369,6 @@ void setupAP()
   connectInProgress = 0;
 }
 
-// void setupLocal()
-// {
-//   if (cfg.staSsid == NULL || cfg.staPass == NULL)
-//   {
-//     DEBUGLN("WiFi not configured");
-//     setupAP();
-//   }
-//   else
-//   {
-//     DEBUG("Connecting WiFi");
-
-//     connectInProgress = 1;
-
-//     // Задаем сетевое имя
-//     WiFi.hostname(HOSTNAME);
-//     // Включаем wifi
-//     WiFi.mode(WIFI_STA);
-//     // Подключаемся к сети
-//     WiFi.begin(cfg.staSsid, cfg.staPass);
-//     WiFi.persistent(true);
-
-//     uint32_t connectTmr = millis();
-//     while (WiFi.status() != WL_CONNECTED)
-//     {
-//       if (millis() - connectTmr >= WIFI_TIMEOUT)
-//       {
-//         break;
-//       }
-
-//       DEBUG(".");
-
-//       delay(500);
-//     }
-
-//     if (WiFi.status() == WL_CONNECTED)
-//     {
-//       DEBUGLN("");
-//       DEBUGLN("WiFi connected");
-//       DEBUG("IP address: ");
-//       DEBUGLN(WiFi.localIP());
-//     }
-//     else
-//     {
-//       DEBUGLN("");
-//       DEBUGLN("Failed to connect!");
-
-//       // Попробуем позже
-//       setupAP();
-//     }
-
-//     connectInProgress = 0;
-//   }
-// }
-
 void setupLocal()
 {
   if (cfg.staSsid == NULL || cfg.staPass == NULL)
