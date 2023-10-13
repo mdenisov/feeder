@@ -36,5 +36,17 @@ Final
 ## PCB
 
 In the **PCB** folder you will find everything you need to produce a printed circuit board.
+
+### Main components are:
+
+- ESP8266 (ESP-12F)
+- Stepper driver A4988
+- MP2307DN
+- SS34
+- Switch (TA-03)
+- Pair JST connectors
+- Screw connector
+- Resistors and capacitors (0805)
+
 Final view of the printed circuit board:
 ![pcb](docs/Feeder_PCB_3D.png)
