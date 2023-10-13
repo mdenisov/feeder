@@ -15,7 +15,7 @@
 #define STEPPER_MICRO_STEPS 16  // Микрошаги
 #define STEPPER_GEAR_RATIO 5.16 // Передаточное число редуктора
 #define EE_KEY 0x10             // Ключ EEPROM (1 байт) - измени, чтобы сбросить настройки
-#define VERSION 0.1             // Версия
+#define VERSION 1.0             // Версия
 #define DRIVER_STEP_TIME 1      // Задержка между переключением
 // состояния пина STEP (мкс)
 
