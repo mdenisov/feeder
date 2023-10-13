@@ -66,16 +66,17 @@ const byte feedTime[][2] = {
 const int feedAmount = (STEPPER_STEPS * STEPPER_MICRO_STEPS * STEPPER_GEAR_RATIO) / 4;
 bool connectInProgress = 0;
 
-// Колбэки WiFi
-WiFiEventHandler onStationModeConnectedHandler;
-WiFiEventHandler onStationModeGotIPHandler;
-WiFiEventHandler onStationModeDisconnectedHandler;
+/* =============== Колбэки WiFi ============== */
+static WiFiEventHandler staConnectedHandler;
+static WiFiEventHandler staDisconnectedHandler;
+static WiFiEventHandler staGotIPHandler;
+static WiFiEventHandler staDHCPTimeoutHandler;
+/* =========================================== */
 
-/* =============================== Логика ================================ */
+/* ================= Логика ================== */
 String getChipID()
 {
-  return String(system_get_chip_id()); // -> 8659269
-  // return String(ESP.getChipId());
+  return String(system_get_chip_id());
 }
 
 String getTopicName(const char *topic)
@@ -324,32 +325,42 @@ void initFS()
   LittleFS.begin();
 }
 
-/* ================================ WiFi ================================= */
-void onStationModeConnected(const WiFiEventStationModeConnected &evt)
+/* =================== WiFi ================== */
+void onStaConnected(const WiFiEventStationModeConnected& evt)
 {
   connectInProgress = 0;
 
-  DEBUGLN("WiFi connected");
-  DEBUG("IP address: ");
-  DEBUGLN(WiFi.localIP());
+  DEBUG("WiFi connected: ");
+  DEBUG(evt.ssid);
+  DEBUG(" ");
+  DEBUGLN(evt.channel);
 }
 
-void onStationModeGotIP(const WiFiEventStationModeGotIP &evt)
-{
-  connectInProgress = 0;
-
-  DEBUGLN("WiFi connected");
-  DEBUG("IP address: ");
-  DEBUGLN(WiFi.localIP());
-}
-
-void onStationModeDisconnected(const WiFiEventStationModeDisconnected &evt)
+void onStaDisconnected(const WiFiEventStationModeDisconnected& evt)
 {
   connectInProgress = 1;
 
-  DEBUGLN("WiFi disconnected");
-  DEBUG("Reason: ");
+  DEBUG("WiFi disconnected: ");
+  DEBUG(evt.ssid);
+  DEBUG(" ");
   DEBUGLN(evt.reason);
+}
+
+void onStaGotIP(const WiFiEventStationModeGotIP& evt)
+{
+  connectInProgress = 0;
+
+  DEBUG("Got IP: ");
+  DEBUG(evt.ip);
+  DEBUG(" ");
+  DEBUG(evt.mask);
+  DEBUG(" ");
+  DEBUGLN(evt.gw);
+}
+
+void onStaDHCPTimeout()
+{
+  DEBUGLN("DHCP Timeout");
 }
 
 void setupAP()
@@ -359,8 +370,10 @@ void setupAP()
     return;
   }
 
+  WiFi.persistent(false);
   WiFi.disconnect();
   WiFi.mode(WIFI_AP);
+  WiFi.persistent(true);
   WiFi.softAP(cfg.apSsid, cfg.apPass);
 
   DEBUGLN("Started in AP mode");
@@ -382,24 +395,29 @@ void setupLocal()
 
     connectInProgress = 1;
 
-    // Задаем сетевое имя
-    WiFi.hostname(HOSTNAME);
     // Включаем wifi
     WiFi.mode(WIFI_STA);
+    // WiFi.config(INADDR_NONE, INADDR_NONE, INADDR_NONE, INADDR_NONE);
+    // Make sure the wifi does not autoconnect but always reconnects
+    WiFi.setAutoConnect(false);
+    WiFi.setAutoReconnect(true);
+
+    // WiFi Events
+    staConnectedHandler = WiFi.onStationModeConnected(&onStaConnected);
+    staDisconnectedHandler = WiFi.onStationModeDisconnected(&onStaDisconnected);
+    staGotIPHandler = WiFi.onStationModeGotIP(&onStaGotIP);
+    staDHCPTimeoutHandler = WiFi.onStationModeDHCPTimeout(&onStaDHCPTimeout);
+
+    // Задаем сетевое имя
+    WiFi.hostname(HOSTNAME);
     // Подключаемся к сети
-    WiFi.begin(cfg.staSsid, cfg.staPass);
-    // WiFi.persistent(true);
+    WiFi.begin(cfg.staSsid, cfg.staPass, 0, NULL, true);
+    delay(2000);
   }
 }
 
 void startWiFi()
 {
-  // onStationModeConnectedHandler =
-  // WiFi.onStationModeConnected(&onStationModeConnected);
-  onStationModeGotIPHandler = WiFi.onStationModeGotIP(&onStationModeGotIP);
-  onStationModeDisconnectedHandler =
-      WiFi.onStationModeDisconnected(&onStationModeDisconnected);
-
   if (cfg.staModeEn)
   {
     // Подключаемся к роутеру
