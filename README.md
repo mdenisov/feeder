@@ -28,10 +28,10 @@ Step 4
 ![step_4](docs/step_4.png)
 Step 5
 ![step_5](docs/step_5.png)
-Step 6
-![step_6](docs/step_6.png)
+Slice
+![slice](docs/slice.png)
 Final
-![final](docs/final.PNG)
+![final](docs/slice.png)
 
 ## PCB
 
