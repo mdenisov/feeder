@@ -1,5 +1,5 @@
-# Pet Feeder
+![Pet Feeder](docs/intro.png)
 
-<img src="docs/intro.png" alt="intro" width="450px">
+# Pet Feeder
 
 WiFi remote based on ESP8266.
