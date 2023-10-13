@@ -326,7 +326,7 @@ void initFS()
 }
 
 /* =================== WiFi ================== */
-void onStaConnected(const WiFiEventStationModeConnected& evt)
+void onStaConnected(const WiFiEventStationModeConnected &evt)
 {
   connectInProgress = 0;
 
@@ -336,7 +336,7 @@ void onStaConnected(const WiFiEventStationModeConnected& evt)
   DEBUGLN(evt.channel);
 }
 
-void onStaDisconnected(const WiFiEventStationModeDisconnected& evt)
+void onStaDisconnected(const WiFiEventStationModeDisconnected &evt)
 {
   connectInProgress = 1;
 
@@ -346,7 +346,7 @@ void onStaDisconnected(const WiFiEventStationModeDisconnected& evt)
   DEBUGLN(evt.reason);
 }
 
-void onStaGotIP(const WiFiEventStationModeGotIP& evt)
+void onStaGotIP(const WiFiEventStationModeGotIP &evt)
 {
   connectInProgress = 0;
 
