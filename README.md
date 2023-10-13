@@ -51,3 +51,5 @@ In the **PCB** folder you will find everything you need to produce a printed cir
 
 Final view of the printed circuit board:
 ![pcb](docs/Feeder_PCB_3D.png)
+
+Thanks [@AlexGyver](https://github.com/AlexGyver) for awesome [libs](https://github.com/GyverLibs).
