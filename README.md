@@ -10,7 +10,7 @@ Smart feeder for pets. Works according to schedule. Supports Wifi and MQTT. WiFi
 - Supports MQTT
 - Possibility of integration with a smart home
 
-## Assembled devive
+## Assembled device
 
 ### Reductor
 ![reductor](docs/reductor.png)
