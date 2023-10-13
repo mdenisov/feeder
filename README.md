@@ -11,6 +11,7 @@ Smart feeder for pets. Works according to schedule. Supports Wifi and MQTT. WiFi
 - Possibility of integration with a smart home
 
 ## Assembled device
+The **STL** folder contains all the files necessary for printing.
 
 ### Reductor
 Reductor designed for stepper motor **Nema 17**.
