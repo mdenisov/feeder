@@ -22,7 +22,6 @@
 
 /* ============ Список объектов ============== */
 GyverPortal ui(&LittleFS);
-// EncButton<EB_TICK, BTN_PIN> btn;
 Button btn(BTN_PIN);
 GyverNTP ntp(3);
 GStepper2<STEPPER2WIRE> stepper(STEPPER_STEPS *STEPPER_MICRO_STEPS, STEP_PIN, DIR_PIN, EN_PIN);
