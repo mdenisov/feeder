@@ -35,5 +35,5 @@ Final
 ## PCB
 
 In the **PCB** folder you will find everything you need to produce a printed circuit board.
-Аinal view of the printed circuit board
+Final view of the printed circuit board:
 ![pcb](docs/Feeder_PCB_3D.png)
