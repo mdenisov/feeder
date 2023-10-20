@@ -49,6 +49,11 @@ In the **PCB** folder you will find everything you need to produce a printed cir
 - Screw connector
 - Resistors and capacitors (0805)
 
+And
+- [Button TTP223](https://aliexpress.ru/item/32451378348.html?sku_id=66500187744)
+- [Motor Nema 17](https://aliexpress.ru/item/32665922113.html?sku_id=65715688198)
+- [Led](https://aliexpress.ru/item/1005004515135362.html?sku_id=12000029436349109)
+
 Final view of the printed circuit board:
 ![pcb](docs/Feeder_PCB_3D.png)
 
