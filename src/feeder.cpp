@@ -543,6 +543,11 @@ void loop()
     led.on();
   }
 
+  if (stepper.ready())
+  {
+    publishMessage(MQTT_TOPIC_FEED_STATUS, "0", false);
+  }
+
   // Подключаемся к MQTT
   static uint32_t mqttConnectingTmr = millis();
   if (WiFi.status() == WL_CONNECTED)
