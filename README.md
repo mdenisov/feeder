@@ -10,6 +10,17 @@ Smart feeder for pets. Works according to schedule. Supports Wifi and MQTT. WiFi
 - Supports MQTT
 - Possibility of integration with a smart home
 
+## Web Server
+
+Feeder settings are always available on the device web page. In APP mode address is `192.168.0.4`, In STA mode you must find the device on the local network. In terminal you can find WiFi address:
+
+```
+WiFi connected: My_cool_network 1
+Got IP: 192.168.0.11 255.255.255.0 192.168.0.1
+```
+
+![final](docs/web.png)
+
 ## Assembled device
 The **STL** folder contains all the files necessary for printing.
 
