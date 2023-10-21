@@ -23,7 +23,7 @@
 /* ============ Список объектов ============== */
 GyverPortal ui(&LittleFS);
 Button btn(BTN_PIN);
-GyverNTP ntp(3);
+GyverNTP ntp(NTP_TIMEZONE);
 GStepper2<STEPPER2WIRE> stepper(STEPPER_STEPS *STEPPER_MICRO_STEPS, STEP_PIN, DIR_PIN, EN_PIN);
 WiFiClient wifiClient;
 PubSubClient mqttClient(wifiClient);
@@ -147,7 +147,7 @@ void feed()
 
     publishMessage(MQTT_TOPIC_FEED_STATUS, "1", false);
     stepper.reset();
-    stepper.setTarget(feedAmount * cfg.dosage, RELATIVE);
+    stepper.setTarget(-1 * feedAmount * cfg.dosage, RELATIVE);
   }
 }
 
@@ -410,7 +410,7 @@ void setupLocal()
     WiFi.hostname(HOSTNAME);
     // Подключаемся к сети
     WiFi.begin(cfg.staSsid, cfg.staPass, 0, NULL, true);
-    delay(2000);
+    // delay(2000);
   }
 }
 
@@ -488,13 +488,11 @@ void setup()
 void loop()
 {
   btn.tick();
-  ntp.tick();
   stepper.tick();
   ui.tick();
   led.tick();
-  mqttClient.loop();
 
-  static bool isBlocking = false;
+  // static bool isBlocking = false;
   if (btn.click() || btn.hold())
   {
     // Если кнопка нажата 2 раз
@@ -512,8 +510,8 @@ void loop()
       DEBUGLN("Button click 3 times");
 
       // Ставим флаг засорения
-      isBlocking = true;
-      stepper.setTarget(-1, RELATIVE);
+      // isBlocking = true;
+      // stepper.setTarget(-1, RELATIVE);
     }
 
     // Если кнопка удержана
@@ -536,7 +534,7 @@ void loop()
   {
     led.pulse();
   }
-  else if (cfg.staModeEn && !WiFi.isConnected())
+  else if (cfg.staModeEn && WiFi.status() != WL_CONNECTED)
   {
     led.smooth();
   }
@@ -545,55 +543,26 @@ void loop()
     led.on();
   }
 
-  // Защита от застревания
-  static int attempts = 0;
-  if (stepper.ready())
-  {
-    publishMessage(MQTT_TOPIC_FEED_STATUS, "0", false);
-
-    if (isBlocking)
-    {
-      if (attempts < 10)
-      {
-        bool dir = attempts % 2;
-        stepper.setTarget(dir ? 150 : -150, RELATIVE);
-        attempts++;
-      }
-      else
-      {
-        attempts = 1;
-        isBlocking = false;
-        feed();
-      }
-    }
-    else
-    {
-      // DEBUGLN(stepper.getTarget());
-      // if (stepper.getCurrent() > 0 && stepper.getCurrent() < feedAmount * cfg.dosage) {
-      // Если поворот был меньше 70% от нужного
-      if (stepper.pos > 0 && (stepper.pos < feedAmount * cfg.dosage) && ((stepper.pos * 100) / (feedAmount * cfg.dosage)) < 70)
-      {
-        DEBUG("Stepper is blocking!!!");
-        DEBUGLN(stepper.pos);
-        isBlocking = true;
-      }
-    }
-  }
-
   // Подключаемся к MQTT
   static uint32_t mqttConnectingTmr = millis();
-  if (WiFi.isConnected() && !mqttClient.connected())
+  if (WiFi.status() == WL_CONNECTED)
   {
-    if (millis() - mqttConnectingTmr > 10 * 1000)
+    ntp.tick();
+    mqttClient.loop();
+
+    if (!mqttClient.connected())
     {
-      mqttConnectingTmr = millis();
-      startMQTT();
+      if (millis() - mqttConnectingTmr > 10 * 1000)
+      {
+        mqttConnectingTmr = millis();
+        startMQTT();
+      }
     }
   }
 
   // Если долго нет подключения, запускаем AP
   static uint32_t connectingTmr = millis();
-  if (cfg.staModeEn && !WiFi.isConnected())
+  if (cfg.staModeEn && WiFi.status() != WL_CONNECTED)
   {
     if (millis() - connectingTmr > 2 * 60 * 1000)
     {

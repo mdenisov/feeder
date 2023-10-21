@@ -17,7 +17,7 @@
 #define EE_KEY 0x10             // Ключ EEPROM (1 байт) - измени, чтобы сбросить настройки
 #define VERSION 1.0             // Версия
 #define DRIVER_STEP_TIME 1      // Задержка между переключением
-// состояния пина STEP (мкс)
+#define NTP_TIMEZONE 3          // Часовой пояс в часах (например Москва 3)
 
 #define MQTT_SERVER "m5.wqtt.ru" // Сервер MQTT
 #define MQTT_PORT 7678           // Порт MQTT
