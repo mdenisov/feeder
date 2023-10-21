@@ -47,15 +47,14 @@ struct
   char apSsid[21] = AP_DEFAULT_SSID;   // Имя сети для AP режима по умолчанию
   char apPass[21] = AP_DEFAULT_PASS;   // Пароль сети для AP режима по умолчанию
   char staSsid[21] = STA_DEFAULT_SSID; // Имя сети для STA режима по умолчанию
-  char staPass[21] =
-      STA_DEFAULT_PASS;              // Пароль сети для STA режима по умолчанию
-  bool staModeEn = false;            // Подключаться к роутеру по умолчанию?
-  char mqttServer[21] = MQTT_SERVER; // Сервер MQTT
-  int mqttPort = MQTT_PORT;          // Порт MQTT
-  char mqttLogin[21] = MQTT_LOGIN;   // Логин MQTT
-  char mqttPass[21] = MQTT_PASS;     // Пароль MQTT
-  bool mqttEn = true;                // Использовать брокер?
-  int dosage = 1;                    // Дозировка
+  char staPass[21] = STA_DEFAULT_PASS; // Пароль сети для STA режима по умолчанию
+  bool staModeEn = false;              // Подключаться к роутеру по умолчанию?
+  char mqttServer[21] = MQTT_SERVER;   // Сервер MQTT
+  int mqttPort = MQTT_PORT;            // Порт MQTT
+  char mqttLogin[21] = MQTT_LOGIN;     // Логин MQTT
+  char mqttPass[21] = MQTT_PASS;       // Пароль MQTT
+  bool mqttEn = true;                  // Использовать брокер?
+  int dosage = 1;                      // Дозировка
 } cfg;
 // Расписание
 const byte feedTime[][2] = {
@@ -147,7 +146,7 @@ void feed()
 
     publishMessage(MQTT_TOPIC_FEED_STATUS, "1", false);
     stepper.reset();
-    stepper.setTarget(-1 * feedAmount * cfg.dosage, RELATIVE);
+    stepper.setTarget(feedAmount * cfg.dosage, RELATIVE);
   }
 }
 
@@ -174,7 +173,7 @@ void mqttMessageHandler(char *topic, byte *payload, unsigned int length)
   }
   else if (String(topic) == getTopicName(MQTT_TOPIC_DOSAGE))
   {
-    cfg.dosage = message.toInt();
+    cfg.dosage = constrain(1, 5, message.toInt());
     updateEEPROM();
   }
 }
@@ -192,23 +191,31 @@ void build()
       M_BLOCK_TAB(            // Конфиг для AP режима -> текстбоксы (логин + пароль)
           "AP-Mode",          // Имя + тип DIV
           GP.TEXT("apSsid", "Логин", cfg.apSsid, "", 20);
-          GP.BREAK(); GP.PASS_EYE("apPass", "Пароль", cfg.apPass, "", 20);
+          GP.BREAK();
+          GP.PASS_EYE("apPass", "Пароль", cfg.apPass, "", 20);
           GP.BREAK(););
       M_BLOCK_TAB( // Конфиг для STA режима -> текстбоксы (логин + пароль)
           "WiFi",  // Имя + тип DIV
           GP.TEXT("staSsid", "Логин", cfg.staSsid, "", 20);
-          GP.BREAK(); GP.PASS_EYE("staPass", "Пароль", cfg.staPass, "", 20);
-          GP.BREAK(); M_BOX(GP_CENTER, GP.LABEL("WiFi Enable");
-                            GP.SWITCH("staEn", cfg.staModeEn);););
+          GP.BREAK();
+          GP.PASS_EYE("staPass", "Пароль", cfg.staPass, "", 20);
+          GP.BREAK();
+          M_BOX(GP_CENTER, GP.LABEL("WiFi Enable");
+                GP.SWITCH("staEn", cfg.staModeEn);););
       M_BLOCK_TAB( // Конфиг для AP режима -> текстбоксы (логин + пароль)
           "MQTT",  // Имя + тип DIV
-          // GP.TEXT("mqttServer", "Сервер", cfg.mqttServer, "", 20);
-          // GP.BREAK(); GP.NUMBER("mqttPort", "Порт", cfg.mqttPort, "", 20);
-          // GP.BREAK(); GP.TEXT("mqttLogin", "Логин", cfg.mqttLogin, "", 20);
-          // GP.BREAK(); GP.TEXT("mqttPass", "Пароль", cfg.mqttPass, "", 20);
+          GP.TEXT("mqttServer", "Сервер", cfg.mqttServer, "", 20);
+          GP.BREAK();
+          GP.NUMBER("mqttPort", "Порт", cfg.mqttPort, "", 20);
+          GP.BREAK();
+          GP.TEXT("mqttLogin", "Логин", cfg.mqttLogin, "", 20);
+          GP.BREAK();
+          GP.PASS_EYE("mqttPass", "Пароль", cfg.mqttPass, "", 20);
+          GP.BREAK();
           GP.TEXT("mqttUUID", "ID", getChipID(), "", 20, "", true);
-          GP.BREAK(); M_BOX(GP_CENTER, GP.LABEL("MQTT Enable");
-                            GP.SWITCH("mqttEn", cfg.mqttEn);););
+          GP.BREAK();
+          M_BOX(GP_CENTER, GP.LABEL("MQTT Enable");
+                GP.SWITCH("mqttEn", cfg.mqttEn);););
       M_BLOCK_TAB("Дозировка", M_BOX(GP.LABEL("Значение");
                                      GP.SPINNER("dosage", cfg.dosage, 1, 5);););
       GP.FORM_END();         // <- Конец формы (костыль)
@@ -252,7 +259,6 @@ void action(GyverPortal &p)
 /* ============== Инициализация ============== */
 void initPins()
 {
-
   DEBUGLN("Init pins");
 
   pinMode(BTN_PIN, INPUT_PULLUP);
@@ -260,7 +266,6 @@ void initPins()
 
 void initEEPROM()
 {
-
   DEBUGLN("Init EEPROM");
 
   // Инициализация EEPROM
@@ -270,7 +275,6 @@ void initEEPROM()
   // Если ключ еепром не совпадает
   if (EEPROM.read(0) == EE_KEY)
   {
-
     // Читаем настройки
     EEPROM.get(1, cfg);
     delay(50);
@@ -284,7 +288,6 @@ void initEEPROM()
 
 void initNTP()
 {
-
   DEBUGLN("Init NTP");
 
   ntp.begin();
@@ -492,7 +495,6 @@ void loop()
   ui.tick();
   led.tick();
 
-  // static bool isBlocking = false;
   if (btn.click() || btn.hold())
   {
     // Если кнопка нажата 2 раз
@@ -502,16 +504,6 @@ void loop()
 
       // Кормим
       feed();
-    }
-
-    // Если кнопка нажата 3 раза
-    if (btn.getClicks() == 2)
-    {
-      DEBUGLN("Button click 3 times");
-
-      // Ставим флаг засорения
-      // isBlocking = true;
-      // stepper.setTarget(-1, RELATIVE);
     }
 
     // Если кнопка удержана
