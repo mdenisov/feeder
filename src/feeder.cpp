@@ -197,7 +197,7 @@ void build()
       M_BLOCK_TAB( // Конфиг для STA режима -> текстбоксы (логин + пароль)
           "WiFi",  // Имя + тип DIV
           GP.TEXT("staSsid", "Логин", cfg.staSsid, "", 20);
-          GP.BREAK(); GP.TEXT("staPass", "Пароль", cfg.staPass, "", 20);
+          GP.BREAK(); GP.PASS_EYE("staPass", "Пароль", cfg.staPass, "", 20);
           GP.BREAK(); M_BOX(GP_CENTER, GP.LABEL("WiFi Enable");
                             GP.SWITCH("staEn", cfg.staModeEn);););
       M_BLOCK_TAB( // Конфиг для AP режима -> текстбоксы (логин + пароль)
