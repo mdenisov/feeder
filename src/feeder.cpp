@@ -180,16 +180,15 @@ void mqttMessageHandler(char *topic, byte *payload, unsigned int length)
 
 /* ============ Билд веб-страницы ============ */
 void build()
-{                             // Билд страницы
-  GP.BUILD_BEGIN(400);        // Ширина колонок
-  GP.THEME(GP_DARK);          // Темная тема
-  GP.PAGE_TITLE("Feeder");    // Обзываем титл
-  GP.FORM_BEGIN("/cfg");      // Начало формы
-  GP.GRID_RESPONSIVE(600);    // Отключение респонза при узком экране
-  M_BLOCK(                    // Общий блок-колонка для WiFi
-      GP.SUBMIT("Сохранить"); // Кнопка отправки формы
-      M_BLOCK_TAB(            // Конфиг для AP режима -> текстбоксы (логин + пароль)
-          "AP-Mode",          // Имя + тип DIV
+{                          // Билд страницы
+  GP.BUILD_BEGIN(400);     // Ширина колонок
+  GP.THEME(GP_DARK);       // Темная тема
+  GP.PAGE_TITLE("Feeder"); // Обзываем титл
+  GP.FORM_BEGIN("/cfg");   // Начало формы
+  GP.GRID_RESPONSIVE(600); // Отключение респонза при узком экране
+  M_BLOCK(                 // Общий блок-колонка для WiFi
+      M_BLOCK_TAB(         // Конфиг для AP режима -> текстбоксы (логин + пароль)
+          "AP-Mode",       // Имя + тип DIV
           GP.TEXT("apSsid", "Логин", cfg.apSsid, "", 20);
           GP.BREAK();
           GP.PASS_EYE("apPass", "Пароль", cfg.apPass, "", 20);
@@ -218,10 +217,11 @@ void build()
                 GP.SWITCH("mqttEn", cfg.mqttEn);););
       M_BLOCK_TAB("Дозировка", M_BOX(GP.LABEL("Значение");
                                      GP.SPINNER("dosage", cfg.dosage, 1, 5);););
-      GP.FORM_END();         // <- Конец формы (костыль)
-      M_BLOCK_TAB(           // Блок с OTA-апдейтом
-          "ESP UPDATE",      // Имя + тип DIV
-          GP.OTA_FIRMWARE(); // Кнопка с OTA начинкой
+      GP.SUBMIT("Сохранить"); // Кнопка отправки формы
+      GP.FORM_END();          // <- Конец формы (костыль)
+      M_BLOCK_TAB(            // Блок с OTA-апдейтом
+          "ESP UPDATE",       // Имя + тип DIV
+          GP.OTA_FIRMWARE();  // Кнопка с OTA начинкой
       ););
   GP.BUILD_END(); // Конец билда страницы
 }
