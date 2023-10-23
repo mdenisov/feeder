@@ -1,14 +1,14 @@
 #include "env.cpp"
+#include "utils.cpp"
 
-/* ================ Распиновка =============== */
+/* =================== Pins ================== */
 #define BTN_PIN 5
 #define LED_PIN 13
 #define EN_PIN 12
 #define STEP_PIN 14
 #define DIR_PIN 16
-/* =========================================== */
 
-/* ============ Список библиотек ============= */
+/* ================== Libs =================== */
 #include "Led.h"
 #include <Arduino.h>
 #include <EEPROM.h>
@@ -18,9 +18,8 @@
 #include <GyverStepper2.h>
 #include <LittleFS.h>
 #include <PubSubClient.h>
-/* =========================================== */
 
-/* ============ Список объектов ============== */
+/* ================ Objects ================== */
 GyverPortal ui(&LittleFS);
 Button btn(BTN_PIN);
 GyverNTP ntp(NTP_TIMEZONE);
@@ -28,20 +27,8 @@ GStepper2<STEPPER2WIRE> stepper(STEPPER_STEPS *STEPPER_MICRO_STEPS, STEP_PIN, DI
 WiFiClient wifiClient;
 PubSubClient mqttClient(wifiClient);
 Led led(LED_PIN);
-/* =========================================== */
 
-/* ================ Макросы ================== */
-#ifdef DEBUG_MODE
-#define DEBUG(...) Serial.print(__VA_ARGS__)
-#define DEBUGLN(...) Serial.println(__VA_ARGS__)
-#else
-#define DEBUG(...)
-#define DEBUGLN(...)
-#endif
-/* =========================================== */
-
-/* ========= Глобальные переменные =========== */
-// Структура со всеми настройками
+/* ============ Global variables ============= */
 struct
 {
   char apSsid[21] = AP_DEFAULT_SSID;   // Имя сети для AP режима по умолчанию
@@ -56,8 +43,9 @@ struct
   bool mqttEn = true;                  // Использовать брокер?
   int dosage = 1;                      // Дозировка
 } cfg;
-// Расписание
-const byte feedTime[][2] = {
+
+// Schedule
+const byte schedule[][2] = {
     {9, 0},
     {14, 0},
     {20, 0},
@@ -65,14 +53,13 @@ const byte feedTime[][2] = {
 const int feedAmount = (STEPPER_STEPS * STEPPER_MICRO_STEPS * STEPPER_GEAR_RATIO) / 4;
 bool connectInProgress = 0;
 
-/* =============== Колбэки WiFi ============== */
+/* ============== WiFi callbacks ============= */
 static WiFiEventHandler staConnectedHandler;
 static WiFiEventHandler staDisconnectedHandler;
 static WiFiEventHandler staGotIPHandler;
 static WiFiEventHandler staDHCPTimeoutHandler;
-/* =========================================== */
 
-/* ================= Логика ================== */
+/* ================== Logic ================== */
 String getChipID()
 {
   return String(system_get_chip_id());
@@ -82,7 +69,7 @@ String getTopicName(const char *topic)
 {
   const String clientId = getChipID();
 
-  return String(PREFIX) + "/" + clientId + "/" + topic;
+  return String(NAME) + "/" + clientId + "/" + topic;
 }
 
 bool publishMessage(const char *topic, String payload, boolean retained)
@@ -120,9 +107,7 @@ bool subscribeToTopic(const char *topic)
 
 void updateEEPROM()
 {
-  // Пишем настройки
   EEPROM.put(1, cfg);
-  // Запись
   EEPROM.commit();
   delay(50);
 }
@@ -132,8 +117,7 @@ void resetEEPROM()
 
   DEBUGLN("Reset EEPROM");
 
-  // Пишем ключ
-  EEPROM.write(0, EE_KEY);
+  EEPROM.write(0, EEPROM_KEY);
   updateEEPROM();
 }
 
@@ -178,31 +162,31 @@ void mqttMessageHandler(char *topic, byte *payload, unsigned int length)
   }
 }
 
-/* ============ Билд веб-страницы ============ */
+/* ================ Web page ================= */
 void build()
-{                          // Билд страницы
-  GP.BUILD_BEGIN(400);     // Ширина колонок
-  GP.THEME(GP_DARK);       // Темная тема
-  GP.PAGE_TITLE("Feeder"); // Обзываем титл
-  GP.FORM_BEGIN("/cfg");   // Начало формы
-  GP.GRID_RESPONSIVE(600); // Отключение респонза при узком экране
-  M_BLOCK(                 // Общий блок-колонка для WiFi
-      M_BLOCK_TAB(         // Конфиг для AP режима -> текстбоксы (логин + пароль)
-          "AP-Mode",       // Имя + тип DIV
+{
+  GP.BUILD_BEGIN(400);
+  GP.THEME(GP_DARK);
+  GP.PAGE_TITLE("Feeder");
+  GP.FORM_BEGIN("/cfg");
+  GP.GRID_RESPONSIVE(600);
+  M_BLOCK(
+      M_BLOCK_TAB(
+          "AP-Mode",
           GP.TEXT("apSsid", "Логин", cfg.apSsid, "", 20);
           GP.BREAK();
           GP.PASS_EYE("apPass", "Пароль", cfg.apPass, "", 20);
           GP.BREAK(););
-      M_BLOCK_TAB( // Конфиг для STA режима -> текстбоксы (логин + пароль)
-          "WiFi",  // Имя + тип DIV
+      M_BLOCK_TAB(
+          "WiFi",
           GP.TEXT("staSsid", "Логин", cfg.staSsid, "", 20);
           GP.BREAK();
           GP.PASS_EYE("staPass", "Пароль", cfg.staPass, "", 20);
           GP.BREAK();
           M_BOX(GP_CENTER, GP.LABEL("WiFi Enable");
                 GP.SWITCH("staEn", cfg.staModeEn);););
-      M_BLOCK_TAB( // Конфиг для AP режима -> текстбоксы (логин + пароль)
-          "MQTT",  // Имя + тип DIV
+      M_BLOCK_TAB(
+          "MQTT",
           GP.TEXT("mqttServer", "Сервер", cfg.mqttServer, "", 20);
           GP.BREAK();
           GP.NUMBER("mqttPort", "Порт", cfg.mqttPort, "", 20);
@@ -217,19 +201,16 @@ void build()
                 GP.SWITCH("mqttEn", cfg.mqttEn);););
       M_BLOCK_TAB("Дозировка", M_BOX(GP.LABEL("Значение");
                                      GP.SPINNER("dosage", cfg.dosage, 1, 5);););
-      GP.SUBMIT("Сохранить"); // Кнопка отправки формы
-      GP.FORM_END();          // <- Конец формы (костыль)
-      M_BLOCK_TAB(            // Блок с OTA-апдейтом
-          "ESP UPDATE",       // Имя + тип DIV
-          GP.OTA_FIRMWARE();  // Кнопка с OTA начинкой
-      ););
-  GP.BUILD_END(); // Конец билда страницы
+      GP.SUBMIT("Сохранить");
+      GP.FORM_END();
+      M_BLOCK_TAB(
+          "ESP UPDATE",
+          GP.OTA_FIRMWARE();););
+  GP.BUILD_END();
 }
 
-// Подсос значений со страницы
 void action(GyverPortal &p)
 {
-  // Если есть сабмит формы - копируем все в переменные
   if (p.form("/cfg"))
   {
     p.copyStr("apSsid", cfg.apSsid);
@@ -246,17 +227,17 @@ void action(GyverPortal &p)
 
     p.copyInt("dosage", cfg.dosage);
 
-    // Сохраняем все настройки в EEPROM
+    // Save settings
     updateEEPROM();
 
-    // Перегружаем ESP
+    // Restsrt ESP
     ESP.restart();
     // Отключаем AP
     // WiFi.softAPdisconnect();
   }
 }
 
-/* ============== Инициализация ============== */
+/* =================== Init ================== */
 void initPins()
 {
   DEBUGLN("Init pins");
@@ -268,20 +249,19 @@ void initEEPROM()
 {
   DEBUGLN("Init EEPROM");
 
-  // Инициализация EEPROM
   EEPROM.begin(250);
   delay(50);
 
-  // Если ключ еепром не совпадает
-  if (EEPROM.read(0) == EE_KEY)
+  // Read stored key and settings
+  if (EEPROM.read(0) == EEPROM_KEY)
   {
-    // Читаем настройки
+    // Read stored settings
     EEPROM.get(1, cfg);
     delay(50);
   }
   else
   {
-    // Пишем дефолтные настройки
+    // Save default settings
     resetEEPROM();
   }
 }
@@ -295,13 +275,10 @@ void initNTP()
 
 void initUI()
 {
-  // Подключаем билд веб морды
   ui.attachBuild(build);
-  // Подключаем обработчик действий
   ui.attach(action);
-  // Стартуем!
-  ui.start(HOSTNAME);
-  // Включаем ОТА для прошивки по воздуху
+  ui.start(NAME);
+  // Enable OTA
   ui.enableOTA();
 }
 
@@ -310,11 +287,8 @@ void initStepper()
 
   DEBUGLN("Init stepper");
 
-  // установка макс. скорости в шагах/сек
   stepper.setMaxSpeed(2300);
-  // установка ускорения в шагах/сек/сек
   stepper.setAcceleration(3500);
-  // отключать мотор при достижении цели
   stepper.autoPower(true);
   stepper.reset();
   stepper.disable();
@@ -322,7 +296,6 @@ void initStepper()
 
 void initFS()
 {
-  // Инициализация файловой системы
   LittleFS.begin();
 }
 
@@ -396,9 +369,7 @@ void setupLocal()
 
     connectInProgress = 1;
 
-    // Включаем wifi
     WiFi.mode(WIFI_STA);
-    // WiFi.config(INADDR_NONE, INADDR_NONE, INADDR_NONE, INADDR_NONE);
     // Make sure the wifi does not autoconnect but always reconnects
     WiFi.setAutoConnect(false);
     WiFi.setAutoReconnect(true);
@@ -409,9 +380,7 @@ void setupLocal()
     staGotIPHandler = WiFi.onStationModeGotIP(&onStaGotIP);
     staDHCPTimeoutHandler = WiFi.onStationModeDHCPTimeout(&onStaDHCPTimeout);
 
-    // Задаем сетевое имя
-    WiFi.hostname(HOSTNAME);
-    // Подключаемся к сети
+    WiFi.hostname(NAME);
     WiFi.begin(cfg.staSsid, cfg.staPass, 0, NULL, true);
     // delay(2000);
   }
@@ -421,12 +390,12 @@ void startWiFi()
 {
   if (cfg.staModeEn)
   {
-    // Подключаемся к роутеру
+    // Connect to WiFi
     setupLocal();
   }
   else
   {
-    // Режим точки доступа
+    // AP mode
     setupAP();
   }
 }
@@ -467,7 +436,7 @@ void startMQTT()
   }
 }
 
-/* ============= Главные функции ============= */
+/* ================== Main =================== */
 void setup()
 {
 #ifdef DEBUG_MODE
@@ -497,7 +466,7 @@ void loop()
 
   if (btn.click() || btn.hold())
   {
-    // Если кнопка нажата 2 раз
+    // If button clicked 2 times
     if (btn.getClicks() == 1)
     {
       DEBUGLN("Button click 2 times");
@@ -506,18 +475,18 @@ void loop()
       feed();
     }
 
-    // Если кнопка удержана
+    // If button hold
     if (btn.hold(5))
     {
       DEBUGLN("Reset and restart");
 
-      // Сбрасываем настройки
+      // Reset settings
       resetEEPROM();
       ESP.restart();
     }
   }
 
-  // Меняем состояние светодиода
+  // Led
   if (stepper.tick())
   {
     led.blink(5);
@@ -540,7 +509,7 @@ void loop()
     publishMessage(MQTT_TOPIC_FEED_STATUS, "0", false);
   }
 
-  // Подключаемся к MQTT
+  // Connect to MQTT
   static uint32_t mqttConnectingTmr = millis();
   if (WiFi.status() == WL_CONNECTED)
   {
@@ -557,7 +526,7 @@ void loop()
     }
   }
 
-  // Если долго нет подключения, запускаем AP
+  // If there is no connection for a long time, launch AP
   static uint32_t connectingTmr = millis();
   if (cfg.staModeEn && WiFi.status() != WL_CONNECTED)
   {
@@ -568,7 +537,7 @@ void loop()
     }
   }
 
-  // Публикация сообщения с заданной периодичностью
+  // Publish online message
   static uint32_t heartbeatTmr = 0;
   if (millis() - heartbeatTmr > 30000)
   {
@@ -576,7 +545,7 @@ void loop()
     publishMessage(MQTT_TOPIC_STATUS, "online", false);
   }
 
-  // Следим за расписанием
+  // Schedule time
   static uint32_t feedTmr = 0;
   if (millis() - feedTmr > 500)
   {
@@ -589,9 +558,9 @@ void loop()
     {
       prevMin = minute;
 
-      for (byte i = 0; i < sizeof(feedTime) / 2; i++)
+      for (byte i = 0; i < sizeof(schedule) / 2; i++)
       {
-        if (feedTime[i][0] == hour && feedTime[i][1] == minute)
+        if (schedule[i][0] == hour && schedule[i][1] == minute)
         {
           DEBUGLN("Schedule time");
           feed();
