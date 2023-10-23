@@ -300,7 +300,7 @@ void initUI()
   // Подключаем обработчик действий
   ui.attach(action);
   // Стартуем!
-  ui.start();
+  ui.start(HOSTNAME);
   // Включаем ОТА для прошивки по воздуху
   ui.enableOTA();
 }
