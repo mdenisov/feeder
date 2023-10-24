@@ -504,26 +504,26 @@ void loop()
   heartbeatTimer.tick();
   connectingTimer.tick();
 
-  if (btn.click() || btn.hold())
+  if (btn.hasClicks())
   {
-    // If button clicked 2 times
-    if (btn.getClicks() == 1)
-    {
-      DEBUGLN("Button click 2 times");
+    Serial.print("has clicks: ");
+    Serial.println(btn.getClicks());
+  }
 
-      // Кормим
-      feed();
-    }
+  if (btn.click())
+  {
+    // Кормим
+    feed();
+  }
 
-    // If button hold
-    if (btn.hold(5))
-    {
-      DEBUGLN("Reset and restart");
+  // If button hold
+  if (btn.hold(5))
+  {
+    DEBUGLN("Reset and restart");
 
-      // Reset settings
-      resetEEPROM();
-      ESP.restart();
-    }
+    // Reset settings
+    resetEEPROM();
+    ESP.restart();
   }
 
   // Led
