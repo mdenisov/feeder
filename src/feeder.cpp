@@ -9,15 +9,18 @@
 #define DIR_PIN 16
 
 /* ================== Libs =================== */
-#include "Led.h"
 #include <Arduino.h>
 #include <EEPROM.h>
 #include <EncButton.h>
 #include <GyverNTP.h>
 #include <GyverPortal.h>
 #include <GyverStepper2.h>
+#include <TimerMs.h>
+#include <EEManager.h>
 #include <LittleFS.h>
 #include <PubSubClient.h>
+#include "Led.h"
+#include "Ticker.h"
 
 /* ================ Objects ================== */
 GyverPortal ui(&LittleFS);
@@ -27,6 +30,9 @@ GStepper2<STEPPER2WIRE> stepper(STEPPER_STEPS *STEPPER_MICRO_STEPS, STEP_PIN, DI
 WiFiClient wifiClient;
 PubSubClient mqttClient(wifiClient);
 Led led(LED_PIN);
+TimerMs scheduleTimer(500, 1, 0);
+TimerMs heartbeatTimer(30000, 1, 0);
+TimerMs connectingTimer(60000, 0, 1);
 
 /* ============ Global variables ============= */
 struct
@@ -51,7 +57,6 @@ const byte schedule[][2] = {
     {20, 0},
 };
 const int feedAmount = (STEPPER_STEPS * STEPPER_MICRO_STEPS * STEPPER_GEAR_RATIO) / 4;
-bool connectInProgress = 0;
 
 /* ============== WiFi callbacks ============= */
 static WiFiEventHandler staConnectedHandler;
@@ -302,7 +307,8 @@ void initFS()
 /* =================== WiFi ================== */
 void onStaConnected(const WiFiEventStationModeConnected &evt)
 {
-  connectInProgress = 0;
+  // Stop connecting timer
+  connectingTimer.stop();
 
   DEBUG("WiFi connected: ");
   DEBUG(evt.ssid);
@@ -312,7 +318,11 @@ void onStaConnected(const WiFiEventStationModeConnected &evt)
 
 void onStaDisconnected(const WiFiEventStationModeDisconnected &evt)
 {
-  connectInProgress = 1;
+  // Start connecting timer
+  if (!connectingTimer.active())
+  {
+    connectingTimer.start();
+  }
 
   DEBUG("WiFi disconnected: ");
   DEBUG(evt.ssid);
@@ -322,8 +332,6 @@ void onStaDisconnected(const WiFiEventStationModeDisconnected &evt)
 
 void onStaGotIP(const WiFiEventStationModeGotIP &evt)
 {
-  connectInProgress = 0;
-
   DEBUG("Got IP: ");
   DEBUG(evt.ip);
   DEBUG(" ");
@@ -352,8 +360,6 @@ void setupAP()
 
   DEBUGLN("Started in AP mode");
   DEBUGLN(WiFi.softAPIP());
-
-  connectInProgress = 0;
 }
 
 void setupLocal()
@@ -367,7 +373,8 @@ void setupLocal()
   {
     DEBUGLN("Connecting WiFi");
 
-    connectInProgress = 1;
+    // Start connecting timer
+    connectingTimer.start();
 
     WiFi.mode(WIFI_STA);
     // Make sure the wifi does not autoconnect but always reconnects
@@ -436,6 +443,33 @@ void startMQTT()
   }
 }
 
+/* ============= Timer callbacks ============= */
+void heartbeatCallback()
+{
+  publishMessage(MQTT_TOPIC_STATUS, "online", false);
+}
+
+void scheduleCallback()
+{
+  static byte prevMin = 0;
+  uint8_t minute = ntp.minute();
+  uint8_t hour = ntp.hour();
+
+  if (prevMin != minute)
+  {
+    prevMin = minute;
+
+    for (byte i = 0; i < sizeof(schedule) / 2; i++)
+    {
+      if (schedule[i][0] == hour && schedule[i][1] == minute)
+      {
+        DEBUGLN("Schedule time");
+        feed();
+      }
+    }
+  }
+}
+
 /* ================== Main =================== */
 void setup()
 {
@@ -447,6 +481,8 @@ void setup()
   initEEPROM();
 
   led.begin();
+  scheduleTimer.attach(scheduleCallback);
+  heartbeatTimer.attach(heartbeatCallback);
 
   startWiFi();
   startMQTT();
@@ -460,9 +496,14 @@ void setup()
 void loop()
 {
   btn.tick();
+  ntp.tick();
+  mqttClient.loop();
   stepper.tick();
   ui.tick();
   led.tick();
+  scheduleTimer.tick();
+  heartbeatTimer.tick();
+  connectingTimer.tick();
 
   if (btn.click() || btn.hold())
   {
@@ -491,7 +532,7 @@ void loop()
   {
     led.blink(5);
   }
-  else if (connectInProgress)
+  else if (connectingTimer.active())
   {
     led.pulse();
   }
@@ -509,62 +550,22 @@ void loop()
     publishMessage(MQTT_TOPIC_FEED_STATUS, "0", false);
   }
 
-  // Connect to MQTT
-  static uint32_t mqttConnectingTmr = millis();
-  if (WiFi.status() == WL_CONNECTED)
+  if (cfg.staModeEn)
   {
-    ntp.tick();
-    mqttClient.loop();
-
-    if (!mqttClient.connected())
+    if (WiFi.status() == WL_CONNECTED)
     {
-      if (millis() - mqttConnectingTmr > 10 * 1000)
+      // Connect to MQTT
+      if (!mqttClient.connected())
       {
-        mqttConnectingTmr = millis();
         startMQTT();
       }
     }
-  }
-
-  // If there is no connection for a long time, launch AP
-  static uint32_t connectingTmr = millis();
-  if (cfg.staModeEn && WiFi.status() != WL_CONNECTED)
-  {
-    if (millis() - connectingTmr > 2 * 60 * 1000)
+    else
     {
-      connectingTmr = millis();
-      setupAP();
-    }
-  }
-
-  // Publish online message
-  static uint32_t heartbeatTmr = 0;
-  if (millis() - heartbeatTmr > 30000)
-  {
-    heartbeatTmr = millis();
-    publishMessage(MQTT_TOPIC_STATUS, "online", false);
-  }
-
-  // Schedule time
-  static uint32_t feedTmr = 0;
-  if (millis() - feedTmr > 500)
-  {
-    static byte prevMin = 0;
-    feedTmr = millis();
-    uint8_t minute = ntp.minute();
-    uint8_t hour = ntp.hour();
-
-    if (prevMin != minute)
-    {
-      prevMin = minute;
-
-      for (byte i = 0; i < sizeof(schedule) / 2; i++)
+      // If there is no connection for a long time, launch AP
+      if (connectingTimer.ready())
       {
-        if (schedule[i][0] == hour && schedule[i][1] == minute)
-        {
-          DEBUGLN("Schedule time");
-          feed();
-        }
+        setupAP();
       }
     }
   }
