@@ -36,17 +36,17 @@ TimerMs connectingTimer(60000, 0, 1);
 /* ============ Global variables ============= */
 struct
 {
-  char apSsid[21] = AP_DEFAULT_SSID;   // Имя сети для AP режима по умолчанию
-  char apPass[21] = AP_DEFAULT_PASS;   // Пароль сети для AP режима по умолчанию
-  char staSsid[21] = STA_DEFAULT_SSID; // Имя сети для STA режима по умолчанию
-  char staPass[21] = STA_DEFAULT_PASS; // Пароль сети для STA режима по умолчанию
-  bool staModeEn = false;              // Подключаться к роутеру по умолчанию?
-  char mqttServer[21] = MQTT_SERVER;   // Сервер MQTT
-  int mqttPort = MQTT_PORT;            // Порт MQTT
-  char mqttLogin[21] = MQTT_LOGIN;     // Логин MQTT
-  char mqttPass[21] = MQTT_PASS;       // Пароль MQTT
-  bool mqttEn = true;                  // Использовать брокер?
-  int dosage = 1;                      // Дозировка
+  char apSsid[21] = AP_DEFAULT_SSID;   // AP ssid name
+  char apPass[21] = AP_DEFAULT_PASS;   // AP password
+  char staSsid[21] = STA_DEFAULT_SSID; // WiFi ssid
+  char staPass[21] = STA_DEFAULT_PASS; // WiFi password
+  bool staModeEn = false;              // WiFi enabled
+  char mqttServer[21] = MQTT_SERVER;   // MQTT server
+  int mqttPort = MQTT_PORT;            // MQTT port
+  char mqttLogin[21] = MQTT_LOGIN;     // MQTT login
+  char mqttPass[21] = MQTT_PASS;       // MQTT password
+  bool mqttEn = true;                  // MQTT enabled
+  int dosage = 1;                      // dosage
 } cfg;
 
 // Schedule

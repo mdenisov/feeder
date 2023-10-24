@@ -1,32 +1,32 @@
 /* ================ Settings ================= */
-#define VERSION 1.0     // Версия
-#define NAME "Feeder"   // Название устройства
-#define DEBUG_MODE      // Режим отладки
-#define EEPROM_KEY 0x10 // Ключ EEPROM (1 байт) - измени, чтобы сбросить настройки
+#define VERSION 1.0     // Version
+#define NAME "Feeder"   // Device name
+#define DEBUG_MODE      // Debug mode
+#define EEPROM_KEY 0x10 // EEPROM key
 
 /* ================== WiFi =================== */
-#define AP_DEFAULT_SSID "Wi-Fi Feeder AP" // Стандартное имя точки доступа
-#define AP_DEFAULT_PASS "00000000"        // Стандартный пароль точки доступа
-#define STA_DEFAULT_SSID ""               // Стандартное имя точки доступа роутера
-#define STA_DEFAULT_PASS ""               // Стандартный пароль точки доступа роутера
-#define WIFI_TIMEOUT 60000                // Таймаут на подключение к Wi-Fi
-#define NTP_TIMEZONE 3                    // Часовой пояс в часах (например Москва 3)
+#define AP_DEFAULT_SSID "Wi-Fi Feeder AP" // AP ssid name
+#define AP_DEFAULT_PASS "00000000"        // AP password
+#define STA_DEFAULT_SSID ""               // WiFi ssid
+#define STA_DEFAULT_PASS ""               // WiFi password
+#define WIFI_TIMEOUT 60000                // WiFi connection timeout
+#define NTP_TIMEZONE 3                    // Timezone in hours
 
 /* ============ MQTT credentials ============= */
-#define MQTT_SERVER "m5.wqtt.ru" // Сервер MQTT
-#define MQTT_PORT 7678           // Порт MQTT
-#define MQTT_LOGIN "login"       // Логин MQTT
-#define MQTT_PASS "pass"         // Пароль MQTT
+#define MQTT_SERVER "m5.wqtt.ru" // MQTT server
+#define MQTT_PORT 7678           // MQTT port
+#define MQTT_LOGIN "login"       // MQTT login
+#define MQTT_PASS "pass"         // MQTT password
 #define MQTT_MSG_BUFFER_SIZE 100
 
 /* ============== MQTT topics ================ */
-#define MQTT_TOPIC_STATUS "status"
-#define MQTT_TOPIC_FEED "feed"
-#define MQTT_TOPIC_FEED_STATUS "feed_status"
-#define MQTT_TOPIC_DOSAGE "dosage"
+#define MQTT_TOPIC_STATUS "status"           // Online/Offline status
+#define MQTT_TOPIC_FEED "feed"               // Feed action
+#define MQTT_TOPIC_FEED_STATUS "feed_status" // Feed status
+#define MQTT_TOPIC_DOSAGE "dosage"           // Dosage change
 
 /* ============== App Settings =============== */
-#define STEPPER_STEPS 200       // Количество шагов на 1 оборот
-#define STEPPER_MICRO_STEPS 16  // Микрошаги
-#define STEPPER_GEAR_RATIO 5.16 // Передаточное число редуктора
-#define DRIVER_STEP_TIME 1      // Задержка между переключением
+#define STEPPER_STEPS 200       // Steps per revolution
+#define STEPPER_MICRO_STEPS 16  // Microsteps
+#define STEPPER_GEAR_RATIO 5.16 // Gear ratio
+#define DRIVER_STEP_TIME 1      // Delay between switching steps
