@@ -16,7 +16,6 @@
 #include <GyverPortal.h>
 #include <GyverStepper2.h>
 #include <TimerMs.h>
-#include <EEManager.h>
 #include <LittleFS.h>
 #include <PubSubClient.h>
 #include "Led.h"
