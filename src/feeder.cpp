@@ -73,7 +73,7 @@ String getTopicName(const char *topic)
 {
   const String clientId = getChipID();
 
-  return String(NAME) + "/" + clientId + "/" + topic;
+  return String(HOSTNAME) + "/" + clientId + "/" + topic;
 }
 
 bool publishMessage(const char *topic, String payload, boolean retained)
@@ -207,9 +207,12 @@ void build()
                                      GP.SPINNER("dosage", cfg.dosage, 1, 5);););
       GP.SUBMIT("Сохранить");
       GP.FORM_END();
-      M_BLOCK_TAB(
-          "ESP UPDATE",
-          GP.OTA_FIRMWARE();););
+
+      if (OTA_ENABLED) {
+        M_BLOCK_TAB(
+            "ESP UPDATE",
+            GP.OTA_FIRMWARE(););
+      });
   GP.BUILD_END();
 }
 
@@ -281,9 +284,12 @@ void initUI()
 {
   ui.attachBuild(build);
   ui.attach(action);
-  ui.start(NAME);
+  ui.start(HOSTNAME);
   // Enable OTA
-  ui.enableOTA();
+  if (OTA_ENABLED)
+  {
+    ui.enableOTA();
+  }
 }
 
 void initStepper()
@@ -386,7 +392,7 @@ void setupLocal()
     staGotIPHandler = WiFi.onStationModeGotIP(&onStaGotIP);
     staDHCPTimeoutHandler = WiFi.onStationModeDHCPTimeout(&onStaDHCPTimeout);
 
-    WiFi.hostname(NAME);
+    WiFi.hostname(HOSTNAME);
     WiFi.begin(cfg.staSsid, cfg.staPass, 0, NULL, true);
     // delay(2000);
   }

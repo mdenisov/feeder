@@ -1,16 +1,17 @@
 /* ================ Settings ================= */
 #define VERSION 1.0     // Version
-#define NAME "Feeder"   // Device name
 #define DEBUG_MODE      // Debug mode
 #define EEPROM_KEY 0x10 // EEPROM key
 
 /* ================== WiFi =================== */
+#define HOSTNAME "Feeder"                 // Device hostname
 #define AP_DEFAULT_SSID "Wi-Fi Feeder AP" // AP ssid name
 #define AP_DEFAULT_PASS "00000000"        // AP password
 #define STA_DEFAULT_SSID ""               // WiFi ssid
 #define STA_DEFAULT_PASS ""               // WiFi password
 #define WIFI_TIMEOUT 60000                // WiFi connection timeout
 #define NTP_TIMEZONE 3                    // Timezone in hours
+#define OTA_ENABLED 1                     // OTA enabled
 
 /* ============ MQTT credentials ============= */
 #define MQTT_SERVER "m5.wqtt.ru" // MQTT server
