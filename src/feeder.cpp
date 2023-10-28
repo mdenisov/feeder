@@ -23,7 +23,7 @@
 
 /* ================ Objects ================== */
 GyverPortal ui(&LittleFS);
-Button btn(BTN_PIN);
+Button btn(BTN_PIN, INPUT_PULLUP, HIGH);
 GyverNTP ntp(NTP_TIMEZONE);
 GStepper2<STEPPER2WIRE> stepper(STEPPER_STEPS *STEPPER_MICRO_STEPS, STEP_PIN, DIR_PIN, EN_PIN);
 WiFiClient wifiClient;
@@ -381,6 +381,13 @@ void setupLocal()
     // Start connecting timer
     connectingTimer.start();
 
+    // Close old connections
+    WiFi.disconnect(true);
+#ifdef ESP8266
+    WiFi.setPhyMode(WIFI_PHY_MODE_11N);
+#endif
+
+    WiFi.softAPdisconnect(true);
     WiFi.mode(WIFI_STA);
     // Make sure the wifi does not autoconnect but always reconnects
     WiFi.setAutoConnect(false);
@@ -392,7 +399,9 @@ void setupLocal()
     staGotIPHandler = WiFi.onStationModeGotIP(&onStaGotIP);
     staDHCPTimeoutHandler = WiFi.onStationModeDHCPTimeout(&onStaDHCPTimeout);
 
+#ifdef ESP8266
     WiFi.hostname(HOSTNAME);
+#endif
     WiFi.begin(cfg.staSsid, cfg.staPass, 0, NULL, true);
     // delay(2000);
   }
@@ -516,7 +525,7 @@ void loop()
     Serial.println(btn.getClicks());
   }
 
-  if (btn.click())
+  if (btn.click() && btn.getClicks() == 2)
   {
     // Кормим
     feed();
