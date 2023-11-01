@@ -519,12 +519,6 @@ void loop()
   heartbeatTimer.tick();
   connectingTimer.tick();
 
-  if (btn.hasClicks())
-  {
-    Serial.print("has clicks: ");
-    Serial.println(btn.getClicks());
-  }
-
   if (btn.click() && btn.getClicks() == 2)
   {
     // Кормим
