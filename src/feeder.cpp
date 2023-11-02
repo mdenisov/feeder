@@ -529,7 +529,7 @@ void loop()
   // If button hold 3 seconds or more
   if (btn.release())
   {
-    if (btn.pressFor() >= 3000)
+    if (btn.pressFor() >= RESET_TIMEOUT)
     {
       DEBUGLN("Reset and restart");
 

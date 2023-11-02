@@ -31,3 +31,4 @@
 #define STEPPER_MICRO_STEPS 16  // Microsteps
 #define STEPPER_GEAR_RATIO 5.16 // Gear ratio
 #define DRIVER_STEP_TIME 1      // Delay between switching steps
+#define RESET_TIMEOUT 5000      // Reset timeout on button hold
