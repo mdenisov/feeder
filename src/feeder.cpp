@@ -121,8 +121,9 @@ void resetEEPROM()
 
   DEBUGLN("Reset EEPROM");
 
-  EEPROM.write(0, EEPROM_KEY);
-  updateEEPROM();
+  EEPROM.write(0, EEPROM_RESET_KEY);
+  EEPROM.commit();
+  delay(50);
 }
 
 void feed()
@@ -519,20 +520,24 @@ void loop()
   heartbeatTimer.tick();
   connectingTimer.tick();
 
-  if (btn.click() && btn.getClicks() == 2)
+  if (btn.hasClicks(2))
   {
     // Кормим
     feed();
   }
 
-  // If button hold
-  if (btn.hold(5))
+  // If button hold 3 seconds or more
+  if (btn.release())
   {
-    DEBUGLN("Reset and restart");
+    if (btn.pressFor() >= 3000)
+    {
+      DEBUGLN("Reset and restart");
 
-    // Reset settings
-    resetEEPROM();
-    ESP.restart();
+      // Reset settings
+      resetEEPROM();
+      delay(100);
+      ESP.restart();
+    }
   }
 
   // Led

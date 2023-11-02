@@ -1,8 +1,8 @@
 /* ================ Settings ================= */
-#define VERSION 1.0     // Version
-#define DEBUG_MODE      // Debug mode
-#define EEPROM_KEY 0x10 // EEPROM key
-
+#define VERSION 1.0           // Version
+#define DEBUG_MODE            // Debug mode
+#define EEPROM_KEY 0x10       // EEPROM key
+#define EEPROM_RESET_KEY 0x11 // EEPROM reset key
 /* ================== WiFi =================== */
 #define HOSTNAME "Feeder"                 // Device hostname
 #define AP_DEFAULT_SSID "Wi-Fi Feeder AP" // AP ssid name
