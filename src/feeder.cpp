@@ -111,6 +111,7 @@ bool subscribeToTopic(const char *topic)
 
 void updateEEPROM()
 {
+  EEPROM.write(0, EEPROM_KEY);
   EEPROM.put(1, cfg);
   EEPROM.commit();
   delay(50);
@@ -257,7 +258,7 @@ void initEEPROM()
 {
   DEBUGLN("Init EEPROM");
 
-  EEPROM.begin(250);
+  EEPROM.begin(512);
   delay(50);
 
   // Read stored key and settings
