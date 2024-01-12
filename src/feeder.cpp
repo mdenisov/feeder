@@ -527,12 +527,12 @@ void loop()
     feed();
   }
 
-  static bool isBlocking = false;
+  static bool isStucked = false;
   if (btn.hasClicks(3))
     {
       DEBUGLN("Button click 3 times");
 
-      isBlocking = true;
+      isStucked = true;
       stepper.setTarget(-1, RELATIVE);
     }
 
@@ -568,21 +568,21 @@ void loop()
     led.on();
   }
 
-  static int blockingAttempts = 1;
+  static int shakeAttempts = 1;
   if (stepper.ready())
   {
-    if (isBlocking)
+    if (isStucked)
     {
-      if (blockingAttempts < 10)
+      if (shakeAttempts < 10)
       {
-        bool dir = blockingAttempts % 2;
+        bool dir = shakeAttempts % 2;
         stepper.setTarget(dir ? 150 : -150, RELATIVE);
-        blockingAttempts++;
+        shakeAttempts++;
       }
       else
       {
-        blockingAttempts = 1;
-        isBlocking = false;
+        shakeAttempts = 1;
+        isStucked = false;
         feed();
       }
     } else {
