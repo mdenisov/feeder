@@ -568,7 +568,7 @@ void loop()
     led.on();
   }
 
-  static int shakeAttempts = 1;
+  static int shakeAttempts = 0;
   if (stepper.ready())
   {
     if (isStucked)
@@ -581,7 +581,7 @@ void loop()
       }
       else
       {
-        shakeAttempts = 1;
+        shakeAttempts = 0;
         isStucked = false;
         feed();
       }
