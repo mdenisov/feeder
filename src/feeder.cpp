@@ -527,7 +527,16 @@ void loop()
     feed();
   }
 
-  // If button hold 3 seconds or more
+  static bool isBlocking = false;
+  if (btn.hasClicks(3))
+    {
+      DEBUGLN("Button click 3 times");
+
+      isBlocking = true;
+      stepper.setTarget(-1, RELATIVE);
+    }
+
+  // If button hold 5 seconds or more
   if (btn.release())
   {
     if (btn.pressFor() >= RESET_TIMEOUT)
@@ -559,9 +568,26 @@ void loop()
     led.on();
   }
 
+  static int blockingAttempts = 1;
   if (stepper.ready())
   {
-    publishMessage(MQTT_TOPIC_FEED_STATUS, "0", false);
+    if (isBlocking)
+    {
+      if (blockingAttempts < 10)
+      {
+        bool dir = blockingAttempts % 2;
+        stepper.setTarget(dir ? 150 : -150, RELATIVE);
+        blockingAttempts++;
+      }
+      else
+      {
+        blockingAttempts = 1;
+        isBlocking = false;
+        feed();
+      }
+    } else {
+      publishMessage(MQTT_TOPIC_FEED_STATUS, "0", false);
+    }
   }
 
   if (cfg.staModeEn)
