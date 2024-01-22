@@ -576,7 +576,7 @@ void loop()
       if (shakeAttempts < 10)
       {
         bool dir = shakeAttempts % 2;
-        stepper.setTarget(dir ? 150 : -150, RELATIVE);
+        stepper.setTarget(dir ? 350 : -350, RELATIVE);
         shakeAttempts++;
       }
       else
