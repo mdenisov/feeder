@@ -21,7 +21,8 @@ The **STL** folder contains all the files necessary for printing.
 
 ### Reductor
 Reductor designed for stepper motor **Nema 17**.
-![reductor](docs/reductor.png)
+![reductor](docs/reductor-1.png)
+![reductor](docs/reductor-2.png)
 
 ### Case
 Step 1
