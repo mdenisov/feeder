@@ -25,7 +25,7 @@
 GyverPortal ui(&LittleFS);
 Button btn(BTN_PIN, INPUT_PULLUP, HIGH);
 GyverNTP ntp(NTP_TIMEZONE);
-GStepper2<STEPPER2WIRE> stepper(STEPPER_STEPS *STEPPER_MICRO_STEPS, STEP_PIN, DIR_PIN, EN_PIN);
+GStepper2<STEPPER2WIRE> stepper(STEPPER_STEPS * STEPPER_MICRO_STEPS, STEP_PIN, DIR_PIN, EN_PIN);
 WiFiClient wifiClient;
 PubSubClient mqttClient(wifiClient);
 Led led(LED_PIN);
@@ -47,6 +47,7 @@ struct
   char mqttPass[21] = MQTT_PASS;       // MQTT password
   bool mqttEn = true;                  // MQTT enabled
   int dosage = 1;                      // dosage
+  char language[3] = "en";             // language
 } cfg;
 
 // Schedule
@@ -301,8 +302,8 @@ void initStepper()
 
   stepper.setMaxSpeed(2300);
   stepper.setAcceleration(3500);
+  // stepper.reset();
   stepper.autoPower(true);
-  stepper.reset();
   stepper.disable();
 }
 
@@ -369,52 +370,44 @@ void setupAP()
   DEBUGLN(WiFi.softAPIP());
 }
 
-void setupLocal()
+void setupWiFi()
 {
-  if (cfg.staSsid == NULL || cfg.staPass == NULL)
-  {
-    DEBUGLN("WiFi not configured");
-    setupAP();
-  }
-  else
-  {
-    DEBUGLN("Connecting WiFi");
+  DEBUGLN("Connecting WiFi");
 
-    // Start connecting timer
-    connectingTimer.start();
+  // Start connecting timer
+  connectingTimer.start();
 
-    // Close old connections
-    WiFi.disconnect(true);
+  // Close old connections
+  WiFi.disconnect(true);
 #ifdef ESP8266
-    WiFi.setPhyMode(WIFI_PHY_MODE_11N);
+  WiFi.setPhyMode(WIFI_PHY_MODE_11N);
 #endif
 
-    WiFi.softAPdisconnect(true);
-    WiFi.mode(WIFI_STA);
-    // Make sure the wifi does not autoconnect but always reconnects
-    WiFi.setAutoConnect(false);
-    WiFi.setAutoReconnect(true);
+  WiFi.softAPdisconnect(true);
+  WiFi.mode(WIFI_STA);
+  // Make sure the wifi does not autoconnect but always reconnects
+  WiFi.setAutoConnect(false);
+  WiFi.setAutoReconnect(true);
 
-    // WiFi Events
-    staConnectedHandler = WiFi.onStationModeConnected(&onStaConnected);
-    staDisconnectedHandler = WiFi.onStationModeDisconnected(&onStaDisconnected);
-    staGotIPHandler = WiFi.onStationModeGotIP(&onStaGotIP);
-    staDHCPTimeoutHandler = WiFi.onStationModeDHCPTimeout(&onStaDHCPTimeout);
+  // WiFi Events
+  staConnectedHandler = WiFi.onStationModeConnected(&onStaConnected);
+  staDisconnectedHandler = WiFi.onStationModeDisconnected(&onStaDisconnected);
+  staGotIPHandler = WiFi.onStationModeGotIP(&onStaGotIP);
+  staDHCPTimeoutHandler = WiFi.onStationModeDHCPTimeout(&onStaDHCPTimeout);
 
 #ifdef ESP8266
-    WiFi.hostname(HOSTNAME);
+  WiFi.hostname(HOSTNAME);
 #endif
-    WiFi.begin(cfg.staSsid, cfg.staPass, 0, NULL, true);
-    // delay(2000);
-  }
+  WiFi.begin(cfg.staSsid, cfg.staPass, 0, NULL, true);
+  // delay(2000);
 }
 
 void startWiFi()
 {
-  if (cfg.staModeEn)
+  if (cfg.staModeEn && cfg.staSsid != NULL && cfg.staPass != NULL)
   {
     // Connect to WiFi
-    setupLocal();
+    setupWiFi();
   }
   else
   {
@@ -529,26 +522,26 @@ void loop()
 
   static bool isStucked = false;
   if (btn.hasClicks(3))
-    {
-      DEBUGLN("Button click 3 times");
+  {
+    DEBUGLN("Button click 3 times");
 
-      isStucked = true;
-      stepper.setTarget(-1, RELATIVE);
-    }
+    isStucked = true;
+    stepper.setTarget(-1, RELATIVE);
+  }
 
   // If button hold 5 seconds or more
-  if (btn.release())
-  {
-    if (btn.pressFor() >= RESET_TIMEOUT)
-    {
-      DEBUGLN("Reset and restart");
+  // if (btn.release())
+  // {
+  //   if (btn.pressFor() >= RESET_TIMEOUT)
+  //   {
+  //     DEBUGLN("Reset and restart");
 
-      // Reset settings
-      resetEEPROM();
-      delay(100);
-      ESP.restart();
-    }
-  }
+  //     // Reset settings
+  //     resetEEPROM();
+  //     delay(100);
+  //     ESP.restart();
+  //   }
+  // }
 
   // Led
   if (stepper.tick())
@@ -585,7 +578,9 @@ void loop()
         isStucked = false;
         feed();
       }
-    } else {
+    }
+    else
+    {
       publishMessage(MQTT_TOPIC_FEED_STATUS, "0", false);
     }
   }
