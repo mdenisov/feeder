@@ -23,6 +23,7 @@ The **STL** folder contains all the files necessary for printing.
 Reductor designed for stepper motor **Nema 17**.
 ![reductor](docs/reductor-1.png)
 ![reductor](docs/reductor-2.png)
+Use M3x30 countersunk screws to attach the reduction box to the assembly.
 
 ### Case
 Step 1
