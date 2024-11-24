@@ -1,5 +1,5 @@
 /* ================ Settings ================= */
-#define VERSION 1.0           // Version
+#define VERSION 1.2           // Version
 #define DEBUG_MODE            // Debug mode
 #define EEPROM_KEY 0x10       // EEPROM key
 #define EEPROM_RESET_KEY 0x11 // EEPROM reset key
@@ -18,7 +18,7 @@
 #define MQTT_PORT 7678           // MQTT port
 #define MQTT_LOGIN "login"       // MQTT login
 #define MQTT_PASS "pass"         // MQTT password
-#define MQTT_MSG_BUFFER_SIZE 100
+#define MQTT_MSG_BUFFER_SIZE 128
 
 /* ============== MQTT topics ================ */
 #define MQTT_TOPIC_STATUS "status"           // Online/Offline status

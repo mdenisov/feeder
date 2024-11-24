@@ -35,9 +35,9 @@ void Led::off() {
 }
 
 void Led::tick() {
-  if (!isEnabled()) {
-    return;
-  }
+  // if (!isEnabled()) {
+  //   return;
+  // }
 
   uint32_t now = millis();
 
