@@ -20,27 +20,27 @@ void build()
   M_BLOCK(
       M_BLOCK_TAB(
           "AP-Mode",
-          GP.TEXT("apSsid", "Логин", config.apSsid, "", 20);
+          GP.TEXT("apSsid", "Login", config.apSsid, "", 20);
           GP.BREAK();
-          GP.PASS_EYE("apPass", "Пароль", config.apPass, "", 20);
+          GP.PASS_EYE("apPass", "Password", config.apPass, "", 20);
           GP.BREAK(););
       M_BLOCK_TAB(
           "WiFi",
-          GP.TEXT("staSsid", "Логин", config.staSsid, "", 20);
+          GP.TEXT("staSsid", "Login", config.staSsid, "", 20);
           GP.BREAK();
-          GP.PASS_EYE("staPass", "Пароль", config.staPass, "", 20);
+          GP.PASS_EYE("staPass", "Password", config.staPass, "", 20);
           GP.BREAK();
           M_BOX(GP_CENTER, GP.LABEL("WiFi Enable");
                 GP.SWITCH("staEn", config.staModeEn);););
       M_BLOCK_TAB(
           "MQTT",
-          GP.TEXT("mqttServer", "Сервер", config.mqttServer, "", 20);
+          GP.TEXT("mqttServer", "Host", config.mqttServer, "", 20);
           GP.BREAK();
-          GP.NUMBER("mqttPort", "Порт", config.mqttPort, "", 20);
+          GP.NUMBER("mqttPort", "Port", config.mqttPort, "", 20);
           GP.BREAK();
-          GP.TEXT("mqttLogin", "Логин", config.mqttLogin, "", 20);
+          GP.TEXT("mqttLogin", "Login", config.mqttLogin, "", 20);
           GP.BREAK();
-          GP.PASS_EYE("mqttPass", "Пароль", config.mqttPass, "", 20);
+          GP.PASS_EYE("mqttPass", "Password", config.mqttPass, "", 20);
           GP.BREAK();
           GP.TEXT("mqttUUID", "ID", getChipID(), "", 20, "", true);
           GP.BREAK();
@@ -57,7 +57,7 @@ void build()
           GP.SPINNER("dosage", config.dosage, 1, 5);
           );
         );
-      GP.SUBMIT("Сохранить");
+      GP.SUBMIT("Save");
       GP.FORM_END();
 
       if (OTA_ENABLED) {
