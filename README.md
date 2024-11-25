@@ -50,11 +50,11 @@ In the **PCB** folder you will find everything you need to produce a printed cir
 - ESP8266 (ESP-12F)
 - Stepper driver A4988
 - MP2307DN
-- Inductor 10uH
-- Pair diodes SS34
+- Inductor 10uH (0630; L7.0; W6.6)
+- Pair diodes SS34 (SOD-123; L2.7; W1.6)
 - Switch (TA-03)
-- Pair JST connectors
-- Screw connector
+- Pair JST connectors (2.0mm)
+- Screw connector (KF128-2.54)
 - Resistors and capacitors (0805)
 
 And
